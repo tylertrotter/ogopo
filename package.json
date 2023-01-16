@@ -6,12 +6,14 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "stage": "vue-cli-service build --dest public/staging",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
     "@jaames/iro": "^4.3.3",
     "vue": "^2.6.8",
-    "vuex": "^3.1.0"
+    "vuex": "^3.1.0",
+    "vuex-persistedstate": "^2.5.4"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.4.1",

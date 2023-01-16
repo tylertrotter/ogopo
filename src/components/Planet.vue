@@ -1,6 +1,6 @@
 <template>
 	<g>
-		<circle class="orbit" cx="50%" cy="50%" :r="orbitRadius" :style="`stroke-dasharray: 1px ${dasharrayCalc};`" />
+		<circle class="orbit" cx="50%" cy="50%" :r="orbitRadius+'%'" :style="`stroke-dasharray: ${dasharrayCalc};`" />
 		<circle
 			@click="jumpHere"
 			:id="this.id"
@@ -9,15 +9,18 @@
 			cx="50%"
 			:cy="planetPosition"
 			:r="radius + '%'"
-			:style="rotate"
+			:style="`transform: rotate(${rotate}deg);`"
 		/>
-		<use
+		<circle
 			class="next-tick"
-			:href="'#' + this.id"
+			cx="50%"
+			:cy="planetPosition"
+			:r="radius + '%'"
+			:style="`transform: rotate(${nextTick}deg);`"
 			:data-planet-id="this.id"
 			:data-ring="ring"
+			:data-speed="speed"
 			:data-mineral="mineral"
-			:style="nextTick"
 		/>
 	</g>
 </template>
@@ -25,6 +28,7 @@
 <script>
 	import { mapMutations } from "vuex";
 	import assignId from "../mixins/assignId";
+import { setTimeout } from 'timers';
 
 	export default {
 		name: 's-planet',
@@ -74,20 +78,21 @@
 			},
 			orbitRadius(){
 				const minOrbitRadius = 5;
-				return (minOrbitRadius + this.ring * 5) + '%';
+				return (minOrbitRadius + this.ring * 5);
 			},
 			dasharrayCalc(){
-				const circum = ((parseInt(this.orbitRadius, 10) * 2 * Math.PI) / this.speed).toFixed(2);
-				return `calc(${circum}% - 1px)`;
+				const circum = (this.orbitRadius * 2 * Math.PI) / this.speed.toFixed(2);
+				return `.1% ${circum - .1}%`;
 			},
 			rotate(){
 				const spot = +this.spot || 0;
 				let degrees = (360 / this.speed) * (this.$store.state.tick * this.direction) + (spot * (360 / this.speed));
-				return `transform: rotate(${degrees}deg);`
+				return degrees;
 			},
 			nextTick(){
+
 				let degrees = (360 / this.speed) * (this.$store.state.orbitSpeed * this.direction);
-				return `transform: rotate(${degrees}deg);`
+				return this.rotate + degrees;
 			}
 
 		},
@@ -102,7 +107,9 @@
 			});
 		},
 		mounted(){
-			this.$store.commit("updatePlanet", this.id);
+			setTimeout(()=>{
+				this.$store.commit("updatePlanet", this.id);
+			})
 		}
 	}
 </script>
@@ -123,8 +130,10 @@
 	}
 
 	.next-tick {
+		fill: gray;
 		opacity: 0;
 	}
+
 	.orbit {
 		fill: none;
 		stroke-width: 1px;

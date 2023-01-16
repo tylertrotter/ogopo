@@ -10,6 +10,7 @@
 				:class="'emotion--' + $store.getters.currentPlayer.avatar.emotion"
 				class="transition-screen-avatar"
 			/>
+		<span class="button">Go!</span>
 	</div>
 </template>
 
@@ -26,7 +27,7 @@
 	}
 </script>
 
-<style>
+<style scoped>
 	.player-transition {
 		position: fixed;
 		top: 0;
@@ -58,4 +59,14 @@
     display: block;
 		transition: all 1s;
 	}
+
+	.button {
+		position: absolute;
+    bottom: 2em;
+    right: 1em;
+    font-size: 4vw;
+    background: var(--color-2);
+    cursor: pointer;
+	}
+
 </style>

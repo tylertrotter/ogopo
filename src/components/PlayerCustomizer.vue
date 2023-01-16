@@ -49,7 +49,10 @@
 			/>
 		</div>
 		<button v-if="morePlayers" @click="goToNext">next</button>
-		<button v-else @click="goToNext">start game</button>
+		<button v-else @click="goToNext">
+			<span v-if="!gameLoading">start game</span>
+			<img v-else class="preload-symbol" src="@/assets/svgs/loading.svg" />
+		</button>
 		<div>
 			<div class="error-message" :class="{'error-message--hide': !showErrorMessage}">{{validate.message}}</div>
 		</div>
@@ -72,7 +75,8 @@
 		data() {
 			return {
 				errorMessage: null,
-				showErrorMessage: false
+				showErrorMessage: false,
+				gameLoading: false
 			}
 		},
 		computed: {
@@ -95,8 +99,8 @@
 			}
 		},
 		created(){
-			if(!this.currentPlayer)
-				this.$router.push({path: '/'})
+			if(!this.$store.state.players.length)
+				window.location = "/"
 		},
 		methods: {
 			...mapMutations(["customizeFlesh", "customizeIris", "customizeWidth"]),
@@ -124,10 +128,26 @@
 				if(this.validate.error)
 					this.showErrorMessage = true;
 				else if(this.morePlayers)
-					this.$router.push({path: `/setup/${this.$props.player + 1}/customize`});
+					this.$router.push({path: `/setup/${this.$props.player + 1}`});
 				else{
-					document.body.requestFullscreen();
-					this.$router.push({path: `/game`});
+					this.gameLoading = true;
+
+					const docEl = document.documentElement;
+					if (docEl.requestFullscreen) {
+						docEl.requestFullscreen();
+					} else {
+						if (docEl.mozRequestFullScreen) {
+							docEl.mozRequestFullScreen();
+						} else {
+							if (docEl.webkitRequestFullscreen) {
+								docEl.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+							}
+						}
+					}
+
+					setTimeout(() => {
+						this.$router.push({path: `/game`});
+					}, 1000);
 				}
 			}
 		},
@@ -160,7 +180,7 @@
 		position: fixed;
 		right: 0;
 		top: 0;
-		z-index: 0;
+		z-index: -1;
 		width: 68%;
 		max-height: 100%;
 	}
@@ -185,6 +205,15 @@
 	button {
 		margin-top: 1em;
 		font-size: 1.5em;
+		min-width: 7em;
+		text-align: center;
+	}
+
+	.preload-symbol {
+		width: 1.35em;
+		display: block;
+		margin: 0 auto;
+		transform: scale(1.5);
 	}
 
 	@media (max-height: 530px){

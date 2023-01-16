@@ -20,9 +20,9 @@
 			<energy-meter :value="$store.getters.currentPlayer.energy" />
 
 			<section class="cp-materials cp-section mb">
-				<span class="cp-section--label">Materials</span>
+				<span class="cp-section--label">Resources</span>
 				<ul class="cp-materials--list" dir="rtl">
-					<li v-for="i in 60" :key="i"
+					<li v-for="i in 24" :key="i"
 						:class="[
 							$store.state.mineralNames[$store.getters.currentPlayer.materials[i-1]],
 							$store.getters.currentPlayer.materials[i-1] > -1 ? 'owned' : 'unowned'
@@ -65,13 +65,14 @@
 
 <script>
 	import { mapMutations } from "vuex";
-	import utility from "../mixins/utility";
 	import energyMeter from "./EnergyMeter.vue"
 	import avatar from "./Avatar.vue"
+	import getCenter from "../getCenter.js";
+
+	const AudioContext = window.AudioContext || window.webkitAudioContext;
 
 	export default {
 		name: "s-controls",
-		mixins: [utility],
 		components: { avatar, energyMeter },
 		methods: {
 			...mapMutations(["tick", "changePlanet", "addMineral", "changeEnergy", "expandControls", "disableControls"]),
@@ -91,10 +92,16 @@
 				this.disableInteraction(600);
 				this.getEnergy();
 				this.tick(1);
+				this.planetSound();
 			},
 			mine(){
 				if(this.$store.getters.currentPlayer.energy <= 0)
 					return;
+
+				this.$emit('action', {
+					className: 'mining',
+					duration: 1000
+				});
 					
 				this.disableInteraction(600);
 
@@ -106,6 +113,8 @@
 
 				// use energy
 				this.changeEnergy({player: this.$store.getters.currentPlayerId, amount: -1});
+				this.mineSound();
+				
 				
 				this.tick(1);
 			},
@@ -121,6 +130,7 @@
 
 				let planetsInRange = this.$store.state.planetsInRange;
 				if( planetsInRange.length === 1){
+					
 					this.disableInteraction(600);
 					this.changePlanet({player: this.$store.getters.currentPlayerId, planet: planetsInRange[0].id})
 					this.tick(1);
@@ -130,7 +140,9 @@
 					this.$store.commit('disableControls', true);
 
 					let planetId = this.$store.getters.currentPlayer.planet;
-					let shipCoords = this.getCenter(document.getElementById(planetId).getBoundingClientRect());
+
+					
+					let shipCoords = getCenter(document.getElementById(planetId).getBoundingClientRect());
 
 					const galaxy = document.getElementById('galaxy');
 					galaxy.style.transformOrigin = `${shipCoords.x}px ${shipCoords.y}px`;
@@ -146,8 +158,64 @@
 						document.getElementById(planetsInRange[i].id).classList.add('in-range');
 					}
 				}
-			}
+			},
+			planetSound(){
+				// notes b4 to c4
+				const notes = [493.9, 440, 392, 349.2, 329.6, 293.7, 261.6];
+				const ring = this.$store.getters.currentPlanet.ring;
+				const speed = this.$store.getters.currentPlanet.speed;
+				const soundLength = speed / 10;
+				
+				const audioContext = new AudioContext(); 
+				let oscillator = audioContext.createOscillator();
+			
+				const gain = audioContext.createGain();
+				
+				oscillator.frequency.exponentialRampToValueAtTime(100, 0);
+				oscillator.frequency.exponentialRampToValueAtTime(notes[ring-1], .15);
+				oscillator.frequency.exponentialRampToValueAtTime(100, .85);
+				gain.gain.exponentialRampToValueAtTime(.005, 0);
+				gain.gain.exponentialRampToValueAtTime(.0001, soundLength-.2);
+				gain.gain.exponentialRampToValueAtTime(.05, .2);
 
+				oscillator.connect(gain).connect(audioContext.destination);
+				oscillator.start();
+				oscillator.stop(soundLength);
+			},
+			mineSound() {
+				const audioContext = new AudioContext(); 
+				let osc = audioContext.createOscillator();
+				let squeal = audioContext.createOscillator();
+
+				const gainOsc = audioContext.createGain();
+				osc.type = "triangle";
+
+				const squealGain = audioContext.createGain();
+				squealGain.gain.setValueAtTime(.001, audioContext.currentTime);
+				squeal.frequency.setValueAtTime(5000, audioContext.currentTime);
+
+
+				for (let i = 0; i < 10; i++) {
+					let beat = (i * .1);
+					gainOsc.gain.setValueAtTime(3.5, beat);
+					gainOsc.gain.exponentialRampToValueAtTime(0.001, beat + .8);
+								
+					osc.frequency.setValueAtTime(20, beat);
+					osc.frequency.exponentialRampToValueAtTime(0.001, beat + .8);
+				}
+
+				osc.connect(gainOsc);
+				squeal.connect(squealGain);
+
+				gainOsc.connect(audioContext.destination);
+				squealGain.connect(audioContext.destination);
+
+				osc.start(audioContext.currentTime);
+				squeal.start(audioContext.currentTime);
+
+				osc.stop(audioContext.currentTime + .8);
+				squeal.stop(audioContext.currentTime + .8);
+			}
 		}
 	}
 </script>
@@ -230,7 +298,7 @@
 
 	@media (max-height: 500px) {
 		.expanded .cp-avatar {
-		  height: 11vh;
+			height: 11vh;
 			margin-top: -0.2em;
 			margin-bottom: -0.2em;
 		}
@@ -262,8 +330,8 @@
 	}
 
 	.cp-materials--list li {
-		width: calc(20% - 2px);
-		height: calc(8% - 2px);
+		width: calc(25% - 2px);
+		height: calc(16% - 1px);
 		background: rgba(255,255,255,.05);
 		margin: 1px;
 	}

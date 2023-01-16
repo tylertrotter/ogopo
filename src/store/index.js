@@ -1,9 +1,12 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import createPersistedState from 'vuex-persistedstate';
+import getCenter from "../getCenter.js";
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
+	plugins: [createPersistedState()],
   state: {
 		ui: {
 			toolsExpanded: false,
@@ -64,7 +67,7 @@ export default new Vuex.Store({
 			},
 			{
 				name: "Retrograde Bomb",
-				description: "Reverses every orbit in the galaxy. Lasts for the epoch.",
+				description: "Reverses every orbit in the galaxy. Lasts until next turn.",
 				recipe: [
 					{mineral: 0, amount: 6},
 					{mineral: 1, amount: 6}
@@ -78,7 +81,7 @@ export default new Vuex.Store({
 			},
 			{
 				name: "Warp Speed Bomb",
-				description: "Speeds up time to be twice as fast. Planets move around their orbits double the amount they would normally. Lasts for the epoch.",
+				description: "Speeds up time to be twice as fast. Planets move around their orbits double the amount they would normally. Lasts until next turn.",
 				recipe: [
 					{mineral: 0, amount: 8},
 					{mineral: 2, amount: 2},
@@ -96,7 +99,7 @@ export default new Vuex.Store({
 		planetsInRange: [],
 		players: [],
 		systems: {
-			"4:3	": [
+			"4:3": [
 				{
 					width: 40,
 					x: -9,
@@ -2187,19 +2190,27 @@ export default new Vuex.Store({
 			return state.tick % state.ticksPerTurn;
 		},
 		currentPlayerId: (state, getters) => {
-			return getters.turn - 1;
+			return state.players.length ? getters.turn - 1 : 0;
 		},
 		currentPlayer: (state, getters) => {
-			return state.players[getters.currentPlayerId];
+			return state.players.length ? state.players[getters.currentPlayerId] : 0;
 		},
 		currentPlanet: (state, getters) => {
-			return state.planets[+getters.currentPlayer.planet];
+			return state.players.length ? state.planets[+getters.currentPlayer.planet] : "0";
 		},
 		numberOfPlayers: (state) => {
 			return state.players.length;
 		}
 	},
   mutations: {
+		resetGame(state){
+			state.players = [];
+			state.tick = 0;
+			state.step = 0;
+			state.planets = [];
+			state.planetsInRange = [];
+			state.deferredMods = [];
+		},
 		createPlayer(state) {
 			const emptyPlayerObj = {
 				name: "",
@@ -2225,7 +2236,7 @@ export default new Vuex.Store({
 			state.tick += n * state.orbitSpeed;
 			state.step = state.step + 1;
 
-			this.dispatch('checkMods');
+			this.dispatch('afterTickUpdate');
 		},
 		changeBurstRange(state, {payload}){
 			const playerId = this.getters.currentPlayerId;
@@ -2245,9 +2256,9 @@ export default new Vuex.Store({
 			const galaxy = document.getElementById("galaxy");
 			let galaxyWidth = galaxy.clientWidth;
 			let galaxyHeight = galaxy.clientHeight;
-
 			const nextTicks = document.querySelectorAll('.next-tick');
 			// const thisTicks = document.querySelectorAll('.planet');
+
 
 			let nextRect = nextTicks[id].getBoundingClientRect();
 			// let thisRect = thisTicks[id].getBoundingClientRect();
@@ -2256,33 +2267,85 @@ export default new Vuex.Store({
 			let yPercent = ((nextRect.y + nextRect.height/2) / galaxyHeight) * 100;
 			let mineral;
 			let ring;
+			let speed;
 
 			state.galaxy = {width: galaxyWidth, height: galaxyHeight};
 
 			mineral = +nextTicks[id].getAttribute('data-mineral');
-
 			ring = +nextTicks[id].getAttribute('data-ring');
+			speed = +nextTicks[id].getAttribute('data-speed');
 
 			state.planets[id] = {
 				id,
 				nextTick: {xPercent, yPercent, width: nextRect.width, height: nextRect.height, x: nextRect.x, y: nextRect.y},
 				mineral,
-				ring
+				ring,
+				speed
 			}
 		},
-		updatePlanetsInRange(state, planets){
-			state.planetsInRange = planets;
+		updatePlanetsInRange: (state) => {	
+			let turn = Math.ceil((state.step+1) / (state.ticksPerTurn)) % state.players.length;
+			turn = state.step === 0 ? 1 : turn === 0 ? state.players.length : turn;
+
+			let activeShip = state.players[turn - 1];
+			const spaceship = document.querySelector('.active.space-ship');
+			let planets = state.planets;
+			let extendedBurstRange = activeShip.burstRange*4;
+			let filteredPlanets = [];
+			let planetsInRange = [];
+
+			for(var i = 0; i < planets.length; i++){
+				document.getElementById(i).classList.remove("in-range");
+				if(
+						planets[i].id !== activeShip.planet &&
+						planets[i].nextTick.xPercent > activeShip.position.x - extendedBurstRange &&
+						planets[i].nextTick.xPercent < activeShip.position.x + extendedBurstRange &&
+						planets[i].nextTick.yPercent > activeShip.position.y - extendedBurstRange &&
+						planets[i].nextTick.yPercent < activeShip.position.y + extendedBurstRange
+					){
+						filteredPlanets.push(planets[i]);
+				}
+			}
+
+			for(var j = 0; j < filteredPlanets.length; j++){
+				if ( getDistanceBetween(filteredPlanets[j]) < 0 ){
+					document.getElementById(filteredPlanets[j].id).classList.add("in-range");
+					planetsInRange.push(filteredPlanets[j]);
+				}
+			}
+
+			function getDistanceBetween(planet) {
+				var a = getCenter(planet.nextTick);
+				var b = getCenter(spaceship.getBoundingClientRect());
+	
+				return Math.hypot((a.x - b.x), (a.y - b.y)) - a.radius - b.radius;
+			}
+
+			state.planetsInRange = planetsInRange;
 		},
 		changePlanet(state, {player, planet}){
+
 			state.players[player].planet = planet;
 
+			// SFX
+			// const AudioContext = window.AudioContext || window.webkitAudioContext;
+			// const audioContext = new AudioContext();
+			const audioEl = document.getElementById('jump-sound');
+			// const sound = audioContext.createMediaElementSource(audioEl);
+			// const gain = audioContext.createGain();
+			// gain.gain.value = 1;
+			// sound.connect(gain).connect(audioContext.destination);
+			audioEl.play();
+			
+			// Avatar Animation
 			state.players[player].avatar.emotion = 'excited';
 			setTimeout(() => {
 				state.players[player].avatar.emotion = null;
 			}, 1000);
 		},
 		addMineral(state, {player, mineral}){
-			state.players[player].materials.push(mineral);
+			if(state.players[player].materials.length < 24 )
+				state.players[player].materials.push(mineral);
 		},
 		buildTool(state, {tool}){
 			const player = this.getters.currentPlayerId;
@@ -2313,7 +2376,7 @@ export default new Vuex.Store({
 				payload: state.tools[tool].modification.payload
 			});
 
-			this.dispatch('checkMods');
+			this.dispatch('afterTickUpdate');
 
 			// Add deferred Mod if necessary
 			state.deferredMods.push({
@@ -2401,7 +2464,7 @@ export default new Vuex.Store({
 		}
 	},
 	actions: {
-		checkMods({commit, state}) {
+		afterTickUpdate({commit, state}) {
 			let step = state.step;
 			let modsToDelete = [];
 
@@ -2417,6 +2480,11 @@ export default new Vuex.Store({
 			});
 
 			modsToDelete.forEach(i => state.deferredMods.splice(i, 1));
+
+			// commit('updatePlanetsInRange');
+			setTimeout(() => {
+				commit('updatePlanetsInRange');
+			}, 600)
 		}
 	}
 });

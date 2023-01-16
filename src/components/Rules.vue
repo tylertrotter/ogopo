@@ -1,43 +1,63 @@
 <template>
 	<main class="wrapper left-aligned">
+		<button class="close" @click="goBack">&times;</button>
 		<h1>Ogopo Rules</h1>
 
 		<h2>Backstory</h2>
-		<p>Each player is a member of an alien race, the Mookogoo and a resident of Oogogoo, the ancestral planet of the Mookogoo. However, each player is a citizen of a different and rival state.</p>
 
-		<p>As war rages between your people with no clear end in sight, each player's government independently comes to the same conclusion. A rare and volotile material is needed to power a not-so-secret weapon&mdash;the micro bomb! A micro bomb is a widely known but as-of-yet theoretical weapon that could be used to shrink an enemy down to a harmless size. The science has all been worked out epochs ago, the only thing keeping the generals from employing a weapon like this is that to power a micro bomb requires the most precious of all metals in the galaxy&mdash;tin!</p>
+		<p>Civil war rages on Oogogoo, the home planet of the Mookogoo. Very recently, all the military leaders from the warring factions have independently come to the same conclusion&mdash;the only way to break the stalemate is to develop the theoretical t-bomb. The t-bomb is only theoretical because to create one requires huge amounts of the galaxies most precious resources, tin.</p>
 
-		<p>The plain and simple fact is, tin does not exist on Oogogoo. However, there are rumors of a planet abundant with tin on the other side of the galaxy. Adventuring to this distant planet and mining its tin is a dangerous and treacherous mission. Of course each player volunteers immediately for the sake of a lasting peace on Oogogoo. Each of you are quite brave and patriotic.</p>
-
-		<p>The mission, to be quite clear, is to take a cargo ship to the tin planet (which is called Oogobobo by the way), mine 12 units of tin, and bring the payload back so your country's scientists can shrink the enemy to bug size. Of course if you are not first, your countrymen will all be knee high to a gobopo (a species very similar to an aarthling grasshopper). Godspeed.</p>
+		<p>In order to win the race to the bomb and therefore the war, each faction has recruited the bravest mookogoo on the planet for a daring mission. The mission is to fly across the galaxy to the remote but tin-rich planet of Oogobobo, mine 12 cargo containers of the mineral and bring it back home for the scientists to build the bomb. </p>
 
 		<h2>Objective</h2>
-		<p>Each player is trying to be the first to get from their home planet to the tin-rich planet, Oogobobo, in order to mine 12 units of tin and then bring back the tin to the home planet. Fuel is quite limited in this galaxy so players' space ships are only able to go in short bursts to nearby planets. They must plan their trip across the galaxy based on the alignment and movement of planets.</p>
 
-		<h2>Mechanics</h2>
+		<p>The first player to navigate to the green of Oogobobo,  mine 12 units of tin, and then make it back to the home planet, wins! Players must plan their trip across the galaxy based on the alignment and movement of planets.</p>
 
-		<h3>Time</h3>
-		<p>Time is split up into epochs, turns and ticks. An epoch is the time it takes for every player to complete a turn, a turn is a turn, and each player's turn is split into 6 ticks. Planets advance one spot in their orbit at the start of each tick. Planets go around their sun at different speeds. The dots along a planet's orbit path indicate where the planet will go with each tick. Each tick, the player who's turn it is can choose to do nothing, use a resource, or move to a nearby planet in its burst range.</p>
+		<h2>How to Play</h2>
+
+		<h3>Sit, Mine or Jump</h3>
+
+		<p>Each player's turn is split into 6 ticks. With each new tick, all planets move along their orbits. The speed of the orbit is indicated by the number of dots shown on the planet's path. On a player's turn each tick brings with it a decision that must be made to sit (E.g. bide one's time and do nothing), mine, or jump (to a new planet).</p>
+
+		<h3>Mining</h3>
+
+		<p>The planets are composed of different elements that are useful for building various tools that can help in the mission. The resources mined on a tick will be of the same color as the planet. It takes 1 fuel unit to mine a resource.</p>
+
+		<h4>Resource Colors</h4>
+
+		<ul>
+			<li>Tungsten (blue)</li>
+
+			<li>Radium (purple)</li>
+
+			<li>Copper (red)</li>
+
+			<li>Mercury (orange)</li>
+
+			<li>Tin (green)</li>
+		</ul>
+
+		<h3>Jumping</h3>
+
+		<p>Space ships are only able to go in short bursts to nearby planets. A player's spaceship is surrounded by a ring indicating how far the ship can travel. A planet must be at least partially within this burst range  to be accessible. Even if a planet is in range, without at least 2 fuel units a ship won't have the energy to make the jump.</p>
 
 		<h3>Fuel</h3>
-		<p>Each player's space ship is powered by solar energy. The closer a ship is to the sun, the more energy is absorbed with each tick of the player's turn. On the ring closest to the sun a full fuel unit is charged, a diminishing fraction of a fuel unit is charged with each ring going out.</p>
 
+
+		<p>Each player's space ship is powered by solar energy. The closer a ship is to the sun in the current solar system, the more energy is absorbed with each tick of the player's turn. On the ring closest to the sun a full fuel unit is charged, a diminishing fraction of a fuel unit is charged with each ring going out. 1/2 fuel unit is charged while on second ring, 1/3 unit on third ring and so on.</p>
 		<p>It takes two fuel units to jump to a nearby planet and one fuel unit to mine.</p>
-
-		<h4>Burst Range</h4>
-		<p>During a player's turn his spaceship is surrounded by a ring indicating how far his ship can travel in a tick. A planet must be at least partially within this "burst range ring" to be accessible to the ship. It is possible to increase one's burst range with the turbo boost resource.</p>
 
 		<h3>Tools</h3>
 
 		<ul>
 			<li>
-				<h4>Supabooster</h4>
+				<h4>Turbo Booster</h4>
 				<p>This increases your ship's burst range 1 level. Burst ranges start at level 1 and max out at 3. Lasts for remainder of your turn.</p>
 				<p><strong>Recipe:</strong> 4 units of radium, 4 units of tungsten, 4 units of copper</p>
 			</li>
 
 			<li>
-				<h4>Durabooster</h4>
+				<h4>Super Booster</h4>
 				<p>This increases your ship's burst range. Lasts for 2 turns.</p>
 				<p><strong>Recipe:</strong> 6 units of copper, 6 units of mercury</p>
 			</li>
@@ -45,7 +65,7 @@
 			<li>
 				<h4>Diamond Bit</h4>
 				<p>Mine minerals at double the normal rate. Lasts for 20 turns.</p>
-				<p><strong>Recipe:</strong> TBA</p>
+				<p><strong>Recipe:</strong> 4 units of radium, copper, and mercury each</p>
 			</li>
 
 			<li>
@@ -60,32 +80,25 @@
 				<p><strong>Recipe:</strong> 8 units of tungsten, 2 units of copper, 2 units of mercury</p>
 			</li>
 		</ul>
-
-		<h3>Materials</h3>
-		<p>Tools are built using raw materials. All available tools can be built on-board spaceships from combining up to 4 elemental raw materials in certain amounts. The elements from least to most rare are:</p>
-
-		<ol>
-			<li>Tungsten (blue)</li>
-			<li>Radium (purple)</li>
-			<li>Copper (red)</li>
-			<li>Mercury (orange)</li>
-		</ol>
-
-		<p>You acquire these elements by mining t	hem on planets that are rich in them. E.g. If you spend 6 ticks mining on a tungsten rich (blue) planet you'll be able to mine 1 unit of tungsten. You can store 60 units of any element on your ship at one time. Once you use up elements by building tools you'll free up more space.</p>
-
-		<p>Of course 24 units of Tin (green) are required to build the shrinkerator, and scientists will need huge labs on the home planet to build it, so that is not being considered with these lesser tools. But tin is mined in the same way.</p>
-
-		<h3>Your Turn</h3>
-		<p>On each tick while it's your tun, you can sit, mine, or jump. Sit means do nothing and let the tick pass. Mine means to collect the element of the planet your on, and jump means to go to a nearby planet.</p>
 	</main>
 </template>
 
 <script>
 	export default {
-		name: "s-rules"
+		name: "s-rules",
+		methods: {
+			goBack() {
+				this.$router.go(-1);
+			}
+		}
 	}
 </script>
 
 <style scoped>
-
+	.close {
+		position: fixed;
+		top: 10px;
+		right: 10px;
+		font-size: 1.5em;
+	}
 </style>

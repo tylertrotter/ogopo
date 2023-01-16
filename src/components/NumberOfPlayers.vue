@@ -19,11 +19,14 @@
 		name: "s-number-of-players",
 		data() {
 			return {
-				numPlayers: null
+				numPlayers: 2
 			}
 		},
+		created(){
+			this.$store.commit('resetGame');
+		},
 		methods: {
-			...mapMutations(["createPlayer"]),
+			...mapMutations(["createPlayer", "resetGame"]),
 			updatePlayersNum(n){
 				this.numPlayers = n;
 			},
@@ -31,7 +34,7 @@
 				for(let i = 0; i < this.numPlayers; i++){
 					this.$store.commit('createPlayer');
 				}
-				this.$router.push({path: "/setup/1/customize"});
+				this.$router.push({path: "/setup/1"});
 			}
 		}
 	}

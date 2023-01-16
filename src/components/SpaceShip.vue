@@ -29,13 +29,12 @@
 </template>
 
 <script>
-	import utility from "../mixins/utility";
+import { setTimeout } from 'timers';
 	export default {
 		name: "s-space-ship",
-		mixins: [utility],
 		data(){
 			return {
-				active: this.$store.getters.turn === this.player
+				active: null
 			}
 		},
 		props: {
@@ -50,25 +49,25 @@
 
 				position.x = (planets[id].nextTick.xPercent);
 				position.y = (planets[id].nextTick.yPercent);
-
-				if(this.$store.getters.turn === this.player){
-					setTimeout(() => {
-						this.$store.commit('updatePlanetsInRange', this.getPlanetsInRange());
-					}, 600)
-				}
+				
+			},
+			updateActive(){
+				setTimeout(()=>{
+					this.active = this.$store.getters.turn === this.player;
+				}, 800)
 			}
 		},
 		created(){
 			this.$store.subscribe((mutation) => {
 				if(mutation.type === "tick"){
 					this.goToPlanet(this.$store.state.players[this.player-1].planet);
-
-					this.active = this.$store.getters.turn === this.player;
+					this.updateActive();
 				}
 			})
 		},
 		mounted(){
-			this.$store.commit('updatePlanetsInRange', this.getPlanetsInRange());
+			this.$store.commit('updatePlanetsInRange');
+			this.active = this.$store.getters.turn === this.player;
 		}
 	}
 </script>
@@ -106,5 +105,14 @@
 
 	.zoom .burst-range{
 		display: none;
+	}
+
+	@keyframes shake {
+		0% { stroke-width: .7%; }
+		100% { stroke-width: .001%; }
+	}
+
+	.mining .active .burst-range {
+		animation: shake .08s linear infinite;
 	}
 </style>

@@ -33,11 +33,6 @@
 			SSolarSystem,
 			SPlanet,
 			SSpaceShip
-		},
-		mounted(){
-			// setTimeout(()=>{
-			// 	this.$store.commit('tick', 1);
-			// }, 500)
 		}
 	}
 </script>

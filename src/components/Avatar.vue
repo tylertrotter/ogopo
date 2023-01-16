@@ -29,7 +29,7 @@
 			</g>
 		</g>
 
-		<path class="mouth mouth--null" d="M40 73, Q 50 85 60 73" stroke="black" stroke-linecap="round" stroke-width="2" fill="transparent"/>
+		<path class="mouth mouth--null" d="M40 73 Q 50 85 60 73" stroke="black" stroke-linecap="round" stroke-width="2" fill="transparent"/>
 		<ellipse class="mouth mouth--excited" cx="50" cy="75" rx="11" ry="5" />
 		<path class="mouth mouth--thinking" d="M40 73, Q 50 68 60 73" stroke="black" stroke-linecap="round" stroke-width="2" fill="transparent"/>
 
