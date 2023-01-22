@@ -6,7 +6,7 @@ Civil war rages on Oogogoo, the home planet of the Mookogoo. Very recently, all 
 In order to win the race to the bomb and therefore the war, each faction has recruited the bravest mookogoo on the planet for a daring mission. The mission is to fly across the galaxy to the remote but tin-rich planet of Oogobobo, mine 12 cargo containers of the mineral and bring it back home for the scientists to build the bomb. 
 
 ## Objective
-The first player to navigate to the green of Oogobobo,  mine 12 units of tin, and then make it back to the home planet, wins! Players must plan their trip across the galaxy based on the alignment and movement of planets.
+The first player to navigate to the green planet of Oogobobo,  mine 12 units of tin, and then make it back to the home planet, wins! Players must plan their trip across the galaxy based on the alignment and movement of planets.
 
 ## How to Play
 
